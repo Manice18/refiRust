@@ -1,10 +1,16 @@
 use anchor_lang::prelude::*;
 
 #[constant]
-pub const ORG_TAG: &[u8] = b"ORG_STATE";
+pub const NGO_TAG: &[u8] = b"NGO_STATE";
 
 #[constant]
 pub const INVESTOR_TAG: &[u8] = b"INVESTOR_STATE";
 
 #[constant]
-pub const COMMUNITY_TAG: &[u8] = b"COMMUNITY_STATE";
+pub const NAME_TAG: &[u8] = b"NAME_STATE";
+
+#[constant]
+pub const INVEST_TAG: &[u8] = b"INVEST_STATE";
+
+#[constant]
+pub const NEWPROJECT_TAG: &[u8] = b"NEWPROJECT_STATE";
