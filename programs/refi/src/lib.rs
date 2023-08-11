@@ -1,11 +1,13 @@
 use anchor_lang::prelude::*;
+use anchor_spl::token::{self, Token, TokenAccount, Transfer as SplTransfer};
+use solana_program::system_instruction;
 pub mod constant;
 pub mod states;
 use crate::{constant::*, states::*};
 
 // This is your program's public key and it will update
 // automatically when you build the project.
-declare_id!("3xqAN6kjAoWUoKCPsgv4j3CTyGk1rTSUEDKFN5KKtfb9");
+declare_id!("AEodbPbcpUUZd9vH4o1EcTH5GNRFeKBDBbFrtTxZYxg6");
 
 #[program]
 pub mod refi_prog {
@@ -87,6 +89,28 @@ pub mod refi_prog {
 
         Ok(())
     }
+
+    pub fn transfer_lamports(ctx: Context<TransferLamports>, amount: u64) -> Result<()> {
+        let from_account = &ctx.accounts.from;
+        let to_account = &ctx.accounts.to;
+
+        // Create the transfer instruction
+        let transfer_instruction =
+            system_instruction::transfer(from_account.key, to_account.key, amount * 1000000000);
+
+        // Invoke the transfer instruction
+        anchor_lang::solana_program::program::invoke_signed(
+            &transfer_instruction,
+            &[
+                from_account.to_account_info(),
+                to_account.clone(),
+                ctx.accounts.system_program.to_account_info(),
+            ],
+            &[],
+        )?;
+
+        Ok(())
+    }
 }
 
 // Create a pda context for NGO
@@ -138,7 +162,7 @@ pub struct AddProject<'info> {
 
     #[account(
         init,
-        seeds = [NEWPROJECT_TAG ,authority.key().as_ref()],
+        seeds = [NEWPROJECT_TAG ,authority.key().as_ref(),&[ngo_profile.projects_made]],
         bump,
         payer =authority,
         space = 3882,
@@ -183,5 +207,15 @@ pub struct AddInvestor<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
 
+    pub system_program: Program<'info, System>,
+}
+
+//transferSOl
+#[derive(Accounts)]
+pub struct TransferLamports<'info> {
+    #[account(mut)]
+    pub from: Signer<'info>,
+    #[account(mut)]
+    pub to: AccountInfo<'info>,
     pub system_program: Program<'info, System>,
 }
